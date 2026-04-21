@@ -1,5 +1,14 @@
 # tree-sitter-c3 Changelog
 
+## 0.9.0
+Grammar updates for C3 0.7.11.
+- Added `defer_catch_ident`, wrapping `(catch ident)`
+- Added `import_path` node, combining `path_ident` and `attributes`
+- Extract semicolon from `declaration` and `const_declaration` (#50)
+- Support `.$abc` eval shorthand
+- Support doc comments on declarations
+- Support `constdef`
+
 ## 0.8.3
 Grammar updates for C3 0.7.8.
 
