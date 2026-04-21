@@ -37,9 +37,19 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |-
-          gh release download --repo c3lang/c3c --pattern "c3-linux.tar.gz"
+          # Determine the target branch (handling both pushes and PRs)
+          BRANCH="${{ github.base_ref || github.ref_name }}"
+          case "$BRANCH" in
+            "main")    C3_TAG="latest-prerelease-tag" ;;
+            "c3-0.7")  C3_TAG="v0.7.11" ;;
+            "c3-0.8")  C3_TAG="latest-prerelease-tag" ;;
+            *)         C3_TAG="latest-prerelease-tag" ;;
+          esac
+          echo "Using C3 version: $C3_TAG for branch $BRANCH"
+
+          gh release download "$C3_TAG" --repo c3lang/c3c --pattern "c3-linux.tar.gz" --clobber
           tar -xzf c3-linux.tar.gz
-          gh release download --repo c3lang/c3c --archive=tar.gz -O c3c-source.tar.gz
+          gh release download "$C3_TAG" --repo c3lang/c3c --archive=tar.gz -O c3c-source.tar.gz --clobber
           mkdir -p c3c-source
           tar -xzf c3c-source.tar.gz -C c3c-source --strip-components=1
 
