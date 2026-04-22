@@ -7,6 +7,9 @@ on:
     branches: [main, c3-0.7, c3-0.8]
   workflow_dispatch:
 
+env:
+  TREE_SITTER_ABI: 15
+
 jobs:
   test:
     name: Run tests
@@ -22,7 +25,7 @@ jobs:
           install-lib: true
 
       - name: Generate parser
-        run: tree-sitter generate --abi 14
+        run: tree-sitter generate --abi ${{ env.TREE_SITTER_ABI }}
 
       - name: Run parser tests
         run: tree-sitter test
@@ -78,16 +81,18 @@ jobs:
         uses: emscripten-core/setup-emsdk@v16
 
       - name: Generate parser
-        run: tree-sitter generate --abi 14
+        run: tree-sitter generate --abi ${{ env.TREE_SITTER_ABI }}
 
       - name: Build WASM
         run: tree-sitter build --wasm
 
-      - name: Update docs WASM
-        run: cp tree-sitter-c3.wasm docs/tree-sitter-parser.wasm
+      - name: Update playground
+        run: |-
+          tree-sitter playground -e ./docs
+          sed -i 's|LANGUAGE_BASE_URL = ""|LANGUAGE_BASE_URL = "https://c3lang.github.io/tree-sitter-c3"|' ./docs/index.html
 
       - name: Commit changes
         uses: stefanzweifel/git-auto-commit-action@v7
         with:
           commit_message: "Regenerate parser"
-          file_pattern: 'src/ docs/tree-sitter-parser.wasm'
+          file_pattern: 'src/ docs/'
